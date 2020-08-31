@@ -12,11 +12,14 @@ class ViewController: UIViewController {
 
     @IBOutlet var movieTableView: UITableView!
     var arrMovieVM = [MovieViewModel]()
+    var arrMovieList = [MovieViewModel]()
+    let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
 //        self.movieTableView.register(UITableView.self, forCellReuseIdentifier: "cell")
         self.getData()
+        searchBarSetup()
         
     }
 
@@ -32,8 +35,39 @@ class ViewController: UIViewController {
             }
         }
     }
+    
+    func dataList() -> [MovieViewModel] {
+        if arrMovieList.count > arrMovieVM.count {
+            arrMovieVM = arrMovieList
+        }else{
+        arrMovieList = arrMovieVM
+        }
+        return arrMovieVM
+    }
+    
+    private func searchBarSetup() {
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self as? UISearchBarDelegate
+        navigationItem.searchController = searchController
+    }
 
 }
+
+
+extension ViewController : UISearchResultsUpdating{
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text else { return }
+        
+        if searchText == ""{
+            dataList()
+        }else{
+            dataList()
+            arrMovieVM = arrMovieVM.filter{ ($0.artistName?.contains(searchText))!}
+        }
+        movieTableView.reloadData()
+    }
+}
+
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
